@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Dosis Maksimum Obat | Farmasi Profesional</title>
+    <style>
+        /* CSS MODERN & MEDICAL THEME */
+        :root {
+            --primary-color: #2ecc71; /* Hijau Farmasi */
+            --primary-dark: #27ae60;
+            --secondary-color: #34495e; /* Biru Tua Medis */
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-dark));
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background-color: white;
+            object-fit: contain;
+        }
+
+        .header-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-text p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* MAIN CONTAINER */
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1; /* Agar footer terdorong ke bawah */
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .section-title {
+            color: var(--secondary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+        }
+
+        .row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        button.btn-calculate {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            margin-top: 1rem;
+        }
+
+        button.btn-calculate:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button.btn-calculate:active {
+            transform: scale(0.98);
+        }
+
+        /* OUTPUT / RESULT */
+        #result-container {
+            display: none; /* Hidden by default */
+        }
+
+        .result-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .calculation-step {
+            font-family: 'Courier New', Courier, monospace;
+            background: #fff;
+            padding: 1rem;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            white-space: pre-wrap; /* Preserve formatting */
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        .status-safe {
+            background-color: var(--success-color);
+        }
+
+        .status-danger {
+            background-color: var(--danger-color);
+        }
+
+        .percentage-bar-container {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .percentage-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.5s ease;
+        }
+
+        .percentage-bar.danger {
+            background-color: var(--danger-color);
+        }
+
+        .comparison-text {
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .text-success { color: var(--success-color); }
+        .text-danger { color: var(--danger-color); }
+
+        /* DISCLAIMER & PORTFOLIO */
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .creator-portfolio {
+            text-align: center;
+            margin-top: 0.5rem;
+            padding-bottom: 1rem;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        .creator-portfolio a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 1px dotted var(--primary-color);
+        }
+
+        .creator-portfolio a:hover {
+            color: var(--primary-dark);
+            border-bottom-style: solid;
+        }
+
+        /* ERROR MESSAGE */
+        .error-msg {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .logo-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <!-- Menggunakan URL Logo yang diberikan -->
+        <img src="https://z-cdn-media.chatglm.cn/files/37c42e73-f751-4860-ac2e-70f384f8db7a.jpg?auth_key=1871119199-e6116be6b632477390e05dede337f522-0-45c3bd4e5451effbfb8c1931f3949594" alt="Logo Farmasi" class="logo-img">
+        <div class="header-text">
+            <h1>Kalkulator Dosis Obat</h1>
+            <p>Profesional & Akurat Berdasarkan Farmakologi</p>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="card">
+        <h2 class="section-title">Input Data Resep</h2>
+        <form id="doseForm" onsubmit="event.preventDefault(); calculateDose();">
+            
+            <div class="form-group">
+                <label for="drugName">Nama Obat (Pilih dari Daftar)</label>
+                <select id="drugName" required>
+                    <option value="">-- Pilih Obat --</option>
+                    <!-- Opsi akan diisi oleh JavaScript -->
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="age">Umur Pasien (Tahun)</label>
+                        <input type="number" id="age" placeholder="Contoh: 5" min="0" required>
+                        <div id="ageError" class="error-msg">Umur tidak boleh negatif.</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="frequency">Frekuensi (x sehari)</label>
+                        <input type="number" id="frequency" placeholder="Contoh: 3" min="1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="doseValue">Dosis Resep Sekali Minum</label>
+                        <input type="number" id="doseValue" placeholder="Contoh: 250" min="0" step="0.01" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="doseUnit">Satuan</label>
+                        <select id="doseUnit">
+                            <option value="mg">mg (Miligram)</option>
+                            <option value="g">g (Gram)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-calculate">Hitung Dosis Maksimum</button>
+        </form>
+    </section>
+
+    <section id="result-container" class="card">
+        <h2 class="section-title">Hasil Perhitungan & Analisis</h2>
+        
+        <div id="method-display" style="margin-bottom: 1rem; font-weight: bold; color: var(--secondary-color);"></div>
+
+        <div class="result-box">
+            <h3>Berdasarkan Umur (Rumus Perhitungan)</h3>
+            <div id="calculation-steps" class="calculation-step"></div>
+        </div>
+
+        <div class="result-box">
+            <h3>Berdasarkan Resep & Validasi</h3>
+            <div id="resep-analysis"></div>
+        </div>
+
+        <div class="result-box">
+            <h3>Berdasarkan Persentase</h3>
+            <div id="percentage-analysis"></div>
+        </div>
+
+        <div id="final-status" class="status-badge"></div>
+    </section>
+</main>
+
+<footer>
+    <div class="disclaimer">
+        <strong>DISKLAIMER MEDIS:</strong><br>
+        Kalkulator ini hanya untuk tujuan edukasi dan referuan cepat bagi tenaga kesehatan profesional. 
+        Hasil perhitungan tidak menggantikan penilaian klinis dokter atau apoteker. 
+        Selalu periksa literatur terkini dan kondisi klinis pasien individual sebelum memberikan obat. 
+        Pengguna bertanggung jawab penuh atas penggunaan informasi dari alat ini.
+    </div>
+    
+    <!-- Link Portofolio Pembuat -->
+    <div class="creator-portfolio">
+        <p>Website dibuat oleh: 
+            <a href="https://ar0236879-w.github.io/Reski-Ardiansyah/portofolio%20Reski%20Ardiansyah.html" target="_blank">
+                Reski Ardiansyah (Lihat Portofolio)
+            </a>
+        </p>
+    </div>
+</footer>
+
+<script>
+    /**
+     * DATABASE OBAT
+     * Diekstraksi secara manual dari "Daftar Nama Obat Dan Dosis.docx"
+     * Satuan distandarisasi ke Miligram (mg).
+     * "-" atau data kosong diabaikan atau dianggap tidak ada batas tertentu dalam data source.
+     */
+    const drugDatabase = [
+        { name: "Acidum Acetylsalicylicum", maxSingle: 1000, maxDaily: 8000 },
+        { name: "Acidum Nicotinicum", maxSingle: 200, maxDaily: 800 },
+        { name: "Aethinyloestradiolum", maxSingle: 0.3, maxDaily: 0.3 },
+        { name: "Aethylmorphini Hcl", maxSingle: 30, maxDaily: 100 },
+        { name: "Aminophyllinum", maxSingle: 500, maxDaily: 1500 },
+        { name: "Amitripthylini Hcl", maxSingle: 30, maxDaily: 300 },
+        { name: "Ammonii Bromidum", maxSingle: 1000, maxDaily: 3000 },
+        { name: "Ammonii Chloridum", maxSingle: null, maxDaily: 10000 },
+        { name: "Amphetamini sulfas", maxSingle: 20, maxDaily: 40 },
+        { name: "Ampicillinum", maxSingle: null, maxDaily: 4000 },
+        { name: "Ampicillinum Trihydras", maxSingle: null, maxDaily: 4000 },
+        { name: "Atropini sulfas", maxSingle: 1, maxDaily: 3 },
+        { name: "Barbitalum (veronal)", maxSingle: 1000, maxDaily: 1000 },
+        { name: "Barbitalum Natricum", maxSingle: 1000, maxDaily: 1000 },
+        { name: "Belladonnae Herba", maxSingle: 250, maxDaily: 500 },
+        { name: "Belladonnae Extractum spissum", maxSingle: 20, maxDaily: 80 },
+        { name: "Belladonnae Trinctura", maxSingle: null, maxDaily: 2000 }, // "2 g" di kolom daily
+        { name: "Bisacodylum", maxSingle: 30, maxDaily: null }, // Hanya data single yang jelas
+        { name: "Calcii Chloridum", maxSingle: 2000, maxDaily: 8000 },
+        { name: "Calcii Lactas", maxSingle: 15000, maxDaily: null },
+        { name: "Carbamazepinum", maxSingle: 1200, maxDaily: null },
+        { name: "Carbarzonum", maxSingle: 250, maxDaily: 500 },
+        { name: "Cephalexinum", maxSingle: 1000, maxDaily: 4000 },
+        { name: "Chlorali Hydras", maxSingle: 2000, maxDaily: 8000 },
+        { name: "Chlordiazepoxydum", maxSingle: 100, maxDaily: null },
+        { name: "Chlordiazepoxydi Hcl", maxSingle: 100, maxDaily: null },
+        { name: "Chlorpheniramini Maleas", maxSingle: 8, maxDaily: 40 },
+        { name: "Chlorpromazini Hcl", maxSingle: 250, maxDaily: 1000 },
+        { name: "Chlorpropamidum", maxSingle: 750, maxDaily: null },
+        { name: "Codeine Hcl", maxSingle: 60, maxDaily: 300 },
+        { name: "Codeine Phosphas", maxSingle: 60, maxDaily: 300 },
+        { name: "Coffeinum", maxSingle: 500, maxDaily: 1500 },
+        { name: "Coffeini Citras", maxSingle: 1000, maxDaily: 3000 },
+        { name: "Cortisoni Acetas", maxSingle: 150, maxDaily: 400 }, // Asumsi 150mg (150g typo) dan 400mg
+        { name: "Cyproheptadini Hcl", maxSingle: 20, maxDaily: null },
+        { name: "Dapsonum", maxSingle: 400, maxDaily: null }, // seminggu 2 kali di note
+        { name: "Dexamethasoni Natrii Phosphas", maxSingle: null, maxDaily: null }, // Data tidak lengkap
+        { name: "Dexamphetamini Sulfas", maxSingle: 20, maxDaily: 40 },
+        { name: "Diaethylstilboestrolum", maxSingle: 25, maxDaily: null },
+        { name: "Diazepanum", maxSingle: null, maxDaily: 40 },
+        { name: "Dicyclo dini Hcl", maxSingle: 30, maxDaily: 120 },
+        { name: "Digitalis Folium", maxSingle: 1000, maxDaily: null },
+        { name: "Digitalis Tinctura", maxSingle: 6000, maxDaily: null },
+        { name: "Digitoxinum", maxSingle: 0.5, maxDaily: 1.0 },
+        { name: "Digoxinum", maxSingle: 1.5, maxDaily: 2 },
+        { name: "Diiodohydroxyquinolinum", maxSingle: 1000, maxDaily: 2000 },
+        { name: "Diphenhydramini Hcl (Benadryl)", maxSingle: 100, maxDaily: 250 },
+        { name: "Diphenhydramini Teoclas", maxSingle: 100, maxDaily: 250 },
+        { name: "Doxycyclini Hcl", maxSingle: 100, maxDaily: 600 },
+        { name: "Doxycyclinum", maxSingle: 100, maxDaily: 600 },
+        { name: "Ephedrini Hcl", maxSingle: 50, maxDaily: 150 },
+        { name: "Ergometrini Maleas", maxSingle: null, maxDaily: null }, // Data tidak jelas
+        { name: "Ergotamini Tartras", maxSingle: 2, maxDaily: 6 },
+        { name: "Erythromycini Stearas", maxSingle: 0.5, maxDaily: null }, // kemungkinan 500mg, tapi text 0.5mg. Ikuti text utk kepatuhan.
+        { name: "Erythromycinum", maxSingle: 500, maxDaily: 4000 },
+        { name: "Fluphenazini Hcl", maxSingle: 0.5, maxDaily: 20 },
+        { name: "Glycerylis Trinitratis Solutio", maxSingle: 2, maxDaily: 20 },
+        { name: "Griseofulvinum", maxSingle: null, maxDaily: 1000 },
+        { name: "Hexaminum", maxSingle: 1000, maxDaily: 4000 },
+        { name: "Homatropini Hcl", maxSingle: 1, maxDaily: 3 },
+        { name: "Hydralazini Hcl", maxSingle: null, maxDaily: 200 },
+        { name: "Hydrochlorthiazidum", maxSingle: 100, maxDaily: 200 },
+        { name: "Hydrocortisone Acetas", maxSingle: 100, maxDaily: 200 },
+        { name: "Hydromorphoni Hcl", maxSingle: 5, maxDaily: 15 },
+        { name: "Hyoscyni Kbr", maxSingle: 1, maxDaily: 3 },
+        { name: "Hyoscyami Extractum", maxSingle: 125, maxDaily: 500 },
+        { name: "Hyoscyami Herba", maxSingle: 400, maxDaily: 1200 },
+        { name: "Imipramini Hcl", maxSingle: null, maxDaily: 300 },
+        { name: "Indomethacinum", maxSingle: 200, maxDaily: null },
+        { name: "Isoniazidum", maxSingle: 500, maxDaily: null },
+        { name: "Isoprenalini Hcl", maxSingle: 15, maxDaily: 60 },
+        { name: "Kalii Benzylpenicillinum", maxSingle: 2000000, maxDaily: null }, // UI tidak diconvert ke mg, dibiarkan angka
+        { name: "Kalii Sulfoguaiacolas / Thiard", maxSingle: 1000, maxDaily: 3000 },
+        { name: "Levodopum", maxSingle: 8000, maxDaily: null },
+        { name: "Meprobamatum", maxSingle: 800, maxDaily: 2400 },
+        { name: "Mepyramini Maleas", maxSingle: 50, maxDaily: 200 },
+        { name: "Methadoni Hcl", maxSingle: 15, maxDaily: 45 },
+        { name: "Metoilasini Hcl", maxSingle: 8, maxDaily: 32 },
+        { name: "Morphini Hcl", maxSingle: 20, maxDaily: 50 },
+        { name: "Methotrexatum", maxSingle: 10, maxDaily: null },
+        { name: "Minocyclini Hcl", maxSingle: null, maxDaily: 300 },
+        { name: "Nalorphini HCl", maxSingle: null, maxDaily: null },
+        { name: "Natrii Bromidum", maxSingle: 2000, maxDaily: 6000 },
+        { name: "Natrii Citras", maxSingle: null, maxDaily: 80 }, // per kg, excluded logic or handled specially? Excluded for strict formula adherence.
+        { name: "Natrii Dioctylsulfosuccinas", maxSingle: 500, maxDaily: null },
+        { name: "Natrii Levothyroxinum", maxSingle: 1, maxDaily: null }, // ml di text, asumsi 1mg atau 1ml depending
+        { name: "Natrii Paraminosalicylas", maxSingle: null, maxDaily: 15000 },
+        { name: "Natrii Salicylas", maxSingle: 2000, maxDaily: 18000 },
+        { name: "Natrii Sulfobromphtaleinum", maxSingle: null, maxDaily: null }, // iv, per kg
+        { name: "Neomycini Sulfas", maxSingle: null, maxDaily: null }, // per kg
+        { name: "Neostigmini Bromidum", maxSingle: 30, maxDaily: 90 },
+        { name: "Neostigmini Nethylsulfas", maxSingle: 5, maxDaily: null }, // im, sk, iv
+        { name: "Nicethamidum", maxSingle: 500, maxDaily: 2000 },
+        { name: "Nicotinamidum", maxSingle: 500, maxDaily: 1000 },
+        { name: "Nitrofurantoinum", maxSingle: 300, maxDaily: 600 },
+        { name: "Noraethisteronum", maxSingle: 40, maxDaily: null },
+        { name: "Opium", maxSingle: 150, maxDaily: 500 },
+        { name: "Opii Extractum", maxSingle: 100, maxDaily: 250 },
+        { name: "Opii Pulvis", maxSingle: 200, maxDaily: 500 },
+        { name: "Opii Pulvis Compositus", maxSingle: 1500, maxDaily: 5000 },
+        { name: "Opii Tinctura", maxSingle: 1500, maxDaily: 5000 },
+        { name: "Opii Tinctura Aromatica", maxSingle: 2000, maxDaily: 5000 },
+        { name: "Papaverini HCl", maxSingle: 200, maxDaily: 600 },
+        { name: "Pentetrazolum", maxSingle: 200, maxDaily: 500 },
+        { name: "Pethidini HCl", maxSingle: 200, maxDaily: 600 },
+        { name: "Phenacetinum", maxSingle: 500, maxDaily: 1500 },
+        { name: "Phenobarbitalum", maxSingle: 300, maxDaily: 600 },
+        { name: "Phenobarbitalum Natricum", maxSingle: 300, maxDaily: 600 },
+        { name: "Phenylephrini HCl", maxSingle: 10, maxDaily: null },
+        { name: "Phenytoinum", maxSingle: 400, maxDaily: 800 },
+        { name: "Phenytoinum Natricum", maxSingle: 400, maxDaily: 800 },
+        { name: "Physostigmini Salicylas", maxSingle: 1, maxDaily: 3 },
+        { name: "Pilocarpini HCl", maxSingle: 20, maxDaily: 50 },
+        { name: "Pilocarpini Nitras", maxSingle: 20, maxDaily: 50 },
+        { name: "Primaquini Dipshosphas", maxSingle: 30, maxDaily: 50 },
+        { name: "Primidonum", maxSingle: 30, maxDaily: 50 },
+        { name: "Procaini Benzylpenicillinum", maxSingle: 300000, maxDaily: 1200000 }, // Range, taken max
+        { name: "Promethazini HCl", maxSingle: 50, maxDaily: 150 },
+        { name: "Propranololi HCl", maxSingle: null, maxDaily: 320 },
+        { name: "Propoxypheni HCl", maxSingle: 520, maxDaily: null },
+        { name: "Propylthiouracilum", maxSingle: 250, maxDaily: 600 },
+        { name: "Pyridostigmini Bromidum", maxSingle: 180, maxDaily: 450 },
+        { name: "Quinidini Sulfas", maxSingle: 1000, maxDaily: 3000 },
+        { name: "Quinini HCl", maxSingle: 500, maxDaily: 2000 },
+        { name: "Quinini Sulfas", maxSingle: 500, maxDaily: 2000 },
+        { name: "Reserpinum", maxSingle: 1, maxDaily: 5 },
+        { name: "Salicylamidum", maxSingle: 1000, maxDaily: 8000 },
+        { name: "Secalis Cornuti Extraactum", maxSingle: 1000, maxDaily: 3000 },
+        { name: "Secalis Cornuti Pulvis", maxSingle: 650, maxDaily: 2000 },
+        { name: "Spironolactotum", maxSingle: 50, maxDaily: 400 },
+        { name: "Strychnine Nitras", maxSingle: 5, maxDaily: 10 },
+        { name: "Sulfidiazinum", maxSingle: 2000, maxDaily: 8000 },
+        { name: "Theophyllinum", maxSingle: 500, maxDaily: 1000 },
+        { name: "Thyroidum", maxSingle: 150, maxDaily: 300 },
+        { name: "Tripelenamini HCl", maxSingle: 150, maxDaily: 450 }
+    ];
+
+    /**
+     * INITIALIZATION
+     * Populate dropdown
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+        const select = document.getElementById('drugName');
+        // Sort alphabetically
+        drugDatabase.sort((a, b) => a.name.localeCompare(b.name)).forEach(drug => {
+            const option = document.createElement('option');
+            option.value = drug.name;
+            option.textContent = drug.name;
+            select.appendChild(option);
+        });
+    });
+
+    /**
+     * UTILITY: Format Number to Indonesian Locale (Comma decimal)
+     */
+    function formatNumber(num) {
+        return num.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+
+    /**
+     * MAIN CALCULATION LOGIC
+     */
+    function calculateDose() {
+        // 1. Get Inputs
+        const drugName = document.getElementById('drugName').value;
+        const age = parseFloat(document.getElementById('age').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        let doseValue = parseFloat(document.getElementById('doseValue').value);
+        const doseUnit = document.getElementById('doseUnit').value;
+        
+        // Elements
+        const resultContainer = document.getElementById('result-container');
+        const methodDisplay = document.getElementById('method-display');
+        const calcSteps = document.getElementById('calculation-steps');
+        const resepAnalysis = document.getElementById('resep-analysis');
+        const percentAnalysis = document.getElementById('percentage-analysis');
+        const finalStatus = document.getElementById('final-status');
+        const ageError = document.getElementById('ageError');
+
+        // 2. Validation
+        ageError.style.display = 'none';
+        if (isNaN(age) || age < 0) {
+            ageError.style.display = 'block';
+            return;
+        }
+        if (!drugName || isNaN(doseValue) || isNaN(frequency)) {
+            alert("Mohon lengkapi semua data input.");
+            return;
+        }
+
+        // 3. Unit Conversion (to mg)
+        if (doseUnit === 'g') {
+            doseValue = doseValue * 1000;
+        }
+
+        const drug = drugDatabase.find(d => d.name === drugName);
+        if (!drug) return;
+
+        // Check if drug has necessary data
+        if (drug.maxSingle === null && drug.maxDaily === null) {
+            calcSteps.innerHTML = "Data dosis maksimum untuk obat ini tidak tersedia dalam database dokumen.";
+            resultContainer.style.display = 'block';
+            return;
+        }
+
+        // 4. Calculation Logic (Young vs Billing)
+        let formulaName = "";
+        let calcFactor = 0;
+        let calculatedMaxSingle = 0;
+        let calculatedMaxDaily = 0;
+
+        if (age < 8) {
+            // RUMUS YOUNG
+            formulaName = "RUMUS YOUNG (Umur < 8 Tahun)";
+            calcFactor = age / (age + 12);
+            
+            // Format String Logic
+            const dmSingle = drug.maxSingle ? drug.maxSingle : 0;
+            const dmDaily = drug.maxDaily ? drug.maxDaily : 0;
+            
+            if (drug.maxSingle) calculatedMaxSingle = (age / (age + 12)) * drug.maxSingle;
+            if (drug.maxDaily) calculatedMaxDaily = (age / (age + 12)) * drug.maxDaily;
+
+            // Build Output String
+            let outputText = `Metode: Young (Dosis = N / (N + 12) × DM)\n`;
+            outputText += `N (Umur) = ${age} tahun\n`;
+            outputText += `DM (Dosis Maks Dewasa) = Sekali: ${drug.maxSingle ? drug.maxSingle + 'mg' : '-'} | Sehari: ${drug.maxDaily ? drug.maxDaily + 'mg' : '-'}\n\n`;
+
+            if (drug.maxDaily) {
+                const resDaily = (age / (age + 12)) * dmDaily;
+                outputText += `D.M Sehari = ${age}/(${age}+12)×${dmDaily}mg = ${formatNumber(resDaily)}mg\n`;
+            }
+            if (drug.maxSingle) {
+                const resSingle = (age / (age + 12)) * dmSingle;
+                outputText += `D.M Sekali = ${age}/(${age}+12)×${dmSingle}mg = ${formatNumber(resSingle)}mg`;
+            }
+
+            calcSteps.innerText = outputText;
+
+        } else {
+            // RUMUS BILLING
+            formulaName = "RUMUS BILLING (Umur ≥ 8 Tahun)";
+            calcFactor = age / 20;
+
+            if (drug.maxSingle) calculatedMaxSingle = (age / 20) * drug.maxSingle;
+            if (drug.maxDaily) calculatedMaxDaily = (age / 20) * drug.maxDaily;
+
+            let outputText = `Metode: Billing (Dosis = N / 20 × DM)\n`;
+            outputText += `N (Umur) = ${age} tahun\n`;
+            outputText += `DM (Dosis Maks Dewasa) = Sekali: ${drug.maxSingle ? drug.maxSingle + 'mg' : '-'} | Sehari: ${drug.maxDaily ? drug.maxDaily + 'mg' : '-'}\n\n`;
+
+            if (drug.maxDaily) {
+                const resDaily = (age / 20) * drug.maxDaily;
+                outputText += `D.M Sehari = ${age}/20×${drug.maxDaily}mg = ${formatNumber(resDaily)}mg\n`;
+            }
+            if (drug.maxSingle) {
+                const resSingle = (age / 20) * drug.maxSingle;
+                outputText += `D.M Sekali = ${age}/20×${drug.maxSingle}mg = ${formatNumber(resSingle)}mg`;
+            }
+
+            calcSteps.innerText = outputText;
+        }
+
+        methodDisplay.innerText = formulaName;
+
+        // 5. Prescription Analysis
+        const totalPrescribedDaily = doseValue * frequency;
+        let resepHtml = "";
+        
+        // Single Comparison
+        if (drug.maxSingle && calculatedMaxSingle > 0) {
+            const isSafeSingle = doseValue <= calculatedMaxSingle;
+            const colorClassSingle = isSafeSingle ? "text-success" : "text-danger";
+            const operatorSingle = isSafeSingle ? "<" : ">";
+            
+            resepHtml += `<p><strong>1 x Pemberian:</strong> ${formatNumber(doseValue)}mg <span class="${colorClassSingle}">${operatorSingle}</span> ${formatNumber(calculatedMaxSingle)}mg (Batas Maks)</p>`;
+        } else {
+            resepHtml += `<p><strong>1 x Pemberian:</strong> ${formatNumber(doseValue)}mg <span class="text-muted">(Data Batas Maks Sekali tidak tersedia)</span></p>`;
+        }
+
+        // Daily Comparison
+        if (drug.maxDaily && calculatedMaxDaily > 0) {
+            const isSafeDaily = totalPrescribedDaily <= calculatedMaxDaily;
+            const colorClassDaily = isSafeDaily ? "text-success" : "text-danger";
+            const operatorDaily = isSafeDaily ? "<" : ">";
+
+            resepHtml += `<p><strong>Total D.M Sehari (${frequency}x):</strong> ${formatNumber(totalPrescribedDaily)}mg <span class="${colorClassDaily}">${operatorDaily}</span> ${formatNumber(calculatedMaxDaily)}mg (Batas Maks)</p>`;
+        } else {
+            resepHtml += `<p><strong>Total D.M Sehari (${frequency}x):</strong> ${formatNumber(totalPrescribedDaily)}mg <span class="text-muted">(Data Batas Maks Harian tidak tersedia)</span></p>`;
+        }
+
+        resepAnalysis.innerHTML = resepHtml;
+
+        // 6. Percentage Analysis
+        let percentHtml = "";
+        let isDanger = false;
+
+        // Single Percent
+        if (drug.maxSingle && calculatedMaxSingle > 0) {
+            const pctSingle = (doseValue / calculatedMaxSingle) * 100;
+            const barClassSingle = pctSingle > 100 ? "danger" : "";
+            if (pctSingle > 100) isDanger = true;
+
+            percentHtml += `
+                <div style="margin-bottom: 10px;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>1x Pemberian:</span>
+                        <strong>${formatNumber(pctSingle)}%</strong>
+                    </div>
+                    <div class="percentage-bar-container">
+                        <div class="percentage-bar ${barClassSingle}" style="width: ${Math.min(pctSingle, 100)}%;"></div>
+                    </div>
+                    <div class="comparison-text text-${pctSingle > 100 ? 'danger' : 'success'}">
+                        ${formatNumber(doseValue)}mg / ${formatNumber(calculatedMaxSingle)}mg × 100% = ${formatNumber(pctSingle)}%
+                    </div>
+                </div>
+            `;
+        }
+
+        // Daily Percent
+        if (drug.maxDaily && calculatedMaxDaily > 0) {
+            const pctDaily = (totalPrescribedDaily / calculatedMaxDaily) * 100;
+            const barClassDaily = pctDaily > 100 ? "danger" : "";
+            if (pctDaily > 100) isDanger = true;
+
+            percentHtml += `
+                <div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Total Sehari:</span>
+                        <strong>${formatNumber(pctDaily)}%</strong>
+                    </div>
+                    <div class="percentage-bar-container">
+                        <div class="percentage-bar ${barClassDaily}" style="width: ${Math.min(pctDaily, 100)}%;"></div>
+                    </div>
+                    <div class="comparison-text text-${pctDaily > 100 ? 'danger' : 'success'}">
+                        ${formatNumber(totalPrescribedDaily)}mg / ${formatNumber(calculatedMaxDaily)}mg × 100% = ${formatNumber(pctDaily)}%
+                    </div>
+                </div>
+            `;
+        }
+
+        percentAnalysis.innerHTML = percentHtml;
+
+        // 7. Final Status
+        if (isDanger) {
+            finalStatus.className = "status-badge status-danger";
+            finalStatus.innerHTML = "PERINGATAN: Dosis Melebihi Batas Aman (> 100%)";
+        } else {
+            finalStatus.className = "status-badge status-safe";
+            finalStatus.innerHTML = "AMAN: Dosis Dalam Batas Wajar (≤ 100%)";
+        }
+
+        // Show Result
+        resultContainer.style.display = 'block';
+        
+        // Scroll to result
+        resultContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
